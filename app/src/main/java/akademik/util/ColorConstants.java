@@ -1,4 +1,4 @@
-package com.yourcompany.swingapp.util;
+package akademik.util;
 
 import java.awt.Color;
 
@@ -13,4 +13,7 @@ public class ColorConstants {
     public static final Color SIDEBAR_COLOR = new Color(44, 62, 80);
     public static final Color BUTTON_HOVER = new Color(52, 152, 219);
     public static final Color BORDER_COLOR = new Color(189, 195, 199);
+    public static final Color ERROR_COLOR = new Color(231, 76, 60);     // Red
+    public static final Color WARNING_COLOR = new Color(241, 196, 15);  // Yellow
+    public static final Color SUCCESS_COLOR = new Color(46, 204, 113);  // Green
 }

@@ -1,57 +1,90 @@
 package akademik.model;
 
+import java.util.Date;
+
 public class Mahasiswa {
-    private int id;
+    private int nim;
     private String nama;
-    private String kelas;
-    private String mataKuliah;
-    private String nim;
-    private String jenisKelamin;
-    private String email;
-    private String telepon;
-    
-    public Mahasiswa() {}
-    
-    public Mahasiswa(int id, String nama, String kelas, String mataKuliah) {
-        this.id = id;
-        this.nama = nama;
-        this.kelas = kelas;
-        this.mataKuliah = mataKuliah;
-    }
-    
-    public Mahasiswa(String nama, String kelas, String mataKuliah, String nim, 
-                    String jenisKelamin, String email, String telepon) {
-        this.nama = nama;
-        this.kelas = kelas;
-        this.mataKuliah = mataKuliah;
+    private JenisKelamin jenisKelamin;
+    private Date ttl;
+    private String prodi;
+    private String fakultas;
+    private int semester;
+    private Status status;
+
+    public Mahasiswa(int nim, String nama, JenisKelamin jenisKelamin, Date ttl,
+                     String prodi, String fakultas, int semester, Status status) {
         this.nim = nim;
+        this.nama = nama;
         this.jenisKelamin = jenisKelamin;
-        this.email = email;
-        this.telepon = telepon;
+        this.ttl = ttl;
+        this.prodi = prodi;
+        this.fakultas = fakultas;
+        this.semester = semester;
+        this.status = status;
     }
-    
-    // Getters and Setters
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
-    
-    public String getNama() { return nama; }
-    public void setNama(String nama) { this.nama = nama; }
-    
-    public String getKelas() { return kelas; }
-    public void setKelas(String kelas) { this.kelas = kelas; }
-    
-    public String getMataKuliah() { return mataKuliah; }
-    public void setMataKuliah(String mataKuliah) { this.mataKuliah = mataKuliah; }
-    
-    public String getNim() { return nim; }
-    public void setNim(String nim) { this.nim = nim; }
-    
-    public String getJenisKelamin() { return jenisKelamin; }
-    public void setJenisKelamin(String jenisKelamin) { this.jenisKelamin = jenisKelamin; }
-    
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-    
-    public String getTelepon() { return telepon; }
-    public void setTelepon(String telepon) { this.telepon = telepon; }
+
+    public int getNim() {
+        return nim;
+    }
+
+    public void setNim(int nim) {
+        this.nim = nim;
+    }
+
+    public String getNama() {
+        return nama;
+    }
+
+    public void setNama(String nama) {
+        this.nama = nama;
+    }
+
+    public JenisKelamin getJenisKelamin() {
+        return jenisKelamin;
+    }
+
+    public void setJenisKelamin(JenisKelamin jenisKelamin) {
+        this.jenisKelamin = jenisKelamin;
+    }
+
+    public Date getTtl() {
+        return ttl;
+    }
+
+    public void setTtl(Date ttl) {
+        this.ttl = ttl;
+    }
+
+    public String getProdi() {
+        return prodi;
+    }
+
+    public void setProdi(String prodi) {
+        this.prodi = prodi;
+    }
+
+    public String getFakultas() {
+        return fakultas;
+    }
+
+    public void setFakultas(String fakultas) {
+        this.fakultas = fakultas;
+    }
+
+    public int getSemester() {
+        return semester;
+    }
+
+    public void setSemester(int semester) {
+        this.semester = semester;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
 }

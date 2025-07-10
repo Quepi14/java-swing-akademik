@@ -1,4 +1,4 @@
-package com.yourcompany.swingapp.util;
+package akademik.util;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -7,7 +7,7 @@ import javax.swing.border.LineBorder;
 import java.awt.*;
 
 public class ComponentFactory {
-    
+
     public static JPanel createCard(String number, String label) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(ColorConstants.CARD_COLOR);
@@ -15,21 +15,21 @@ public class ComponentFactory {
             new LineBorder(ColorConstants.BORDER_COLOR, 1, true),
             new EmptyBorder(20, 20, 20, 20)
         ));
-        
+
         JLabel angka = new JLabel(number, SwingConstants.CENTER);
         angka.setFont(new Font("Segoe UI", Font.BOLD, 32));
         angka.setForeground(ColorConstants.PRIMARY_COLOR);
-        
+
         JLabel judul = new JLabel(label, SwingConstants.CENTER);
         judul.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         judul.setForeground(ColorConstants.TEXT_SECONDARY);
-        
+
         panel.add(angka, BorderLayout.CENTER);
         panel.add(judul, BorderLayout.SOUTH);
-        
+
         return panel;
     }
-    
+
     public static JLabel createHeader(String text) {
         JLabel header = new JLabel(text, SwingConstants.CENTER);
         header.setFont(new Font("Segoe UI", Font.BOLD, 24));
@@ -39,7 +39,7 @@ public class ComponentFactory {
         header.setBorder(new EmptyBorder(20, 0, 20, 0));
         return header;
     }
-    
+
     public static JButton createSidebarButton(String text) {
         JButton button = new JButton(text);
         button.setFocusPainted(false);
@@ -49,16 +49,21 @@ public class ComponentFactory {
         button.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         button.setHorizontalAlignment(SwingConstants.LEFT);
         button.setBorder(new EmptyBorder(15, 20, 15, 20));
-        
+        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        Color defaultColor = ColorConstants.SIDEBAR_COLOR;
+        Color hoverColor = ColorConstants.BUTTON_HOVER;
+
         button.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(ColorConstants.BUTTON_HOVER);
+                button.setBackground(hoverColor);
             }
+
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(ColorConstants.SIDEBAR_COLOR);
+                button.setBackground(defaultColor);
             }
         });
-        
+
         return button;
     }
 }

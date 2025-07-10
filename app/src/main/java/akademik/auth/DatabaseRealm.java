@@ -9,7 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 public class DatabaseRealm implements Realm {
-    
+
     @Override
     public String getName() {
         return "DatabaseRealm";
@@ -25,32 +25,29 @@ public class DatabaseRealm implements Realm {
         String username = (String) token.getPrincipal();
         String password = new String((char[]) token.getCredentials());
 
-        try (Connection conn = DatabaseConfig.getConnection()) {
-            String sql = """        
-            SELECT username, password FROM admin WHERE username = ? UNION
-            SELECT id, password FROM mahasiswa WHERE id = ? UNION
-            SELECT id, password FROM dosen WHERE id = ?
-            """;
+        String sql = "SELECT username, password FROM admin WHERE username = ?";
 
-            PreparedStatement stmt = conn.prepareStatement(sql);
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setString(1, username);
-            stmt.setString(2, username);
-            stmt.setString(3, username);
-
             ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                String dbPassword = rs.getString("password");
 
-                if (!password.equals(dbPassword)) {
+            if (rs.next()) {
+                String storedPassword = rs.getString("password");
+
+                if (!password.equals(storedPassword)) {
                     throw new IncorrectCredentialsException("Password salah!");
                 }
 
-                return new SimpleAuthenticationInfo(username, password, getName());
+                return new SimpleAuthenticationInfo(username, storedPassword, getName());
             } else {
                 throw new UnknownAccountException("Akun tidak ditemukan!");
             }
+
         } catch (Exception e) {
-            throw new AuthenticationException("Error koneksi ke database", e);
+            e.printStackTrace();
+            throw new AuthenticationException("Terjadi kesalahan saat mengakses database.", e);
         }
     }
 }
