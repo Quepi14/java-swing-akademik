@@ -1,62 +1,54 @@
 package akademik.config;
 
-import akademik.model.Admin;
-import akademik.service.AdminService;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-import org.apache.shiro.authc.*;
-import org.apache.shiro.authz.AuthorizationInfo;
-import org.apache.shiro.authz.SimpleAuthorizationInfo;
-import org.apache.shiro.realm.AuthorizingRealm;
-import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.AuthenticationInfo;
+import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authc.SimpleAuthenticationInfo;
+import org.apache.shiro.authc.UnknownAccountException;
+import org.apache.shiro.realm.AuthenticatingRealm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class DatabaseRealm extends AuthorizingRealm {
+public class DatabaseRealm extends AuthenticatingRealm {
+    private static final Logger logger = LoggerFactory.getLogger(DatabaseRealm.class);
 
-    private AdminService adminService = new AdminService();
-
-    /**
-     * Memberikan hak akses (authorization) ke user
-     */
     @Override
-    protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-        String username = (String) principals.getPrimaryPrincipal();
-        
-        SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
-        // Karena hanya admin, kita set role dan permission statis
-        info.addRole("admin");
-        info.addStringPermission("admin:*");
-        
-        return info;
+    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
+        String username = (String) token.getPrincipal();
+        String password = getPasswordFromDatabase(username);
+
+        if (password == null) {
+            logger.warn("Login attempt for non-existent user: {}", username);
+            throw new UnknownAccountException("User not found");
+        }
+
+        return new SimpleAuthenticationInfo(username, password, getName());
     }
 
-    /**
-     * Melakukan proses login dan verifikasi password (authentication)
-     */
-    @Override
-    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token)
-            throws AuthenticationException {
-
-        UsernamePasswordToken userToken = (UsernamePasswordToken) token;
-        String username = userToken.getUsername();
-        String inputPassword = new String(userToken.getPassword());
-
-        if (username == null || inputPassword == null) {
-            throw new AccountException("Username dan Password tidak boleh kosong.");
+    private String getPasswordFromDatabase(String username) throws AuthenticationException {
+        String sql = "SELECT password FROM user WHERE username = ?";
+        
+        try (Connection conn = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/akademik", "root", "");
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+            
+            if (rs.next()) {
+                return rs.getString("password");
+            }
+            return null;
+            
+        } catch (SQLException e) {
+            logger.error("Database error while fetching password for user: {}", username, e);
+            throw new AuthenticationException("Database access error", e);
         }
-
-        Admin admin = adminService.getAdminByUsername(username);
-
-        if (admin == null) {
-            throw new UnknownAccountException("Admin tidak ditemukan.");
-        }
-
-        if (!admin.getPassword().equals(inputPassword)) {
-            throw new IncorrectCredentialsException("Password salah.");
-        }
-
-        return new SimpleAuthenticationInfo(
-            admin.getUsername(), // principal
-            admin.getPassword(), // credentials
-            getName()            // realm name
-        );
     }
 }

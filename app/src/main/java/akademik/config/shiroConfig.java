@@ -1,5 +1,6 @@
 package akademik.config;
 
+import akademik.auth.DatabaseRealm;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.realm.Realm;

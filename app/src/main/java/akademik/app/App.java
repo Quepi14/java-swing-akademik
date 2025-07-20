@@ -1,9 +1,10 @@
 package akademik.app;
 
-import akademik.auth.DatabaseRealm;
-import akademik.gui.LoginForm;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.mgt.DefaultSecurityManager;
+
+import akademik.auth.DatabaseRealm;
+import akademik.gui.LoginForm;
 
 public class App {
     public static void main(String[] args) {

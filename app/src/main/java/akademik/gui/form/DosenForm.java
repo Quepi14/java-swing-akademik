@@ -1,192 +1,207 @@
 package akademik.gui.form;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Frame;
+import java.awt.GridLayout;
+import java.time.LocalDate;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+
+import org.apache.shiro.authz.annotation.RequiresRoles;
+
 import akademik.model.Dosen;
 import akademik.model.JenisKelamin;
 import akademik.service.DosenService;
 import akademik.util.ColorConstants;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
+@RequiresRoles("admin")
 public class DosenForm extends JDialog {
-    private JTextField nipField;
-    private JTextField namaField;
-    private JTextField gelarField;
+    private JTextField nidnField, namaField, alamatField, telpField, emailField, usernameField;
+    private JPasswordField passwordField;
     private JComboBox<JenisKelamin> jenisKelaminCombo;
-    private JFormattedTextField ttlField;
+    private JComboBox<String> statusCombo;
+    private JButton simpanBtn, batalBtn;
 
-    private DosenService dosenService;
-    private boolean isEdit;
-    private Dosen dosen;
+    private final DosenService dosenService;
+    private final boolean isEdit;
+    private final Dosen dosen;
 
-    public DosenForm(Frame parent, boolean isEdit, Dosen dosen) {
+    public DosenForm(Frame parent, boolean isEdit, Dosen dosen, DosenService dosenService) {
         super(parent, isEdit ? "Edit Dosen" : "Tambah Dosen", true);
-        this.dosenService = new DosenService();
+        this.dosenService = dosenService;
         this.isEdit = isEdit;
         this.dosen = dosen;
-
-        initComponents();
+        
+        initUI();
         if (isEdit && dosen != null) {
             loadData();
         }
     }
 
-    private void initComponents() {
-        setSize(400, 420);
-        setResizable(false);
+    private void initUI() {
+        setSize(550, 550); // Diperbesar untuk menampung lebih banyak field
         setLocationRelativeTo(getParent());
-        setLayout(new BorderLayout());
-        getContentPane().setBackground(ColorConstants.BACKGROUND_COLOR);
+        
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        mainPanel.setBackground(ColorConstants.BACKGROUND_COLOR);
 
-        JPanel headerPanel = new JPanel(new BorderLayout());
+        // Header Panel
+        JPanel headerPanel = new JPanel();
         headerPanel.setBackground(ColorConstants.PRIMARY_COLOR);
-        headerPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
-
+        headerPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         JLabel titleLabel = new JLabel(isEdit ? "EDIT DOSEN" : "TAMBAH DOSEN", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
         titleLabel.setForeground(Color.WHITE);
-        headerPanel.add(titleLabel, BorderLayout.CENTER);
+        headerPanel.add(titleLabel);
 
-        JPanel formPanel = new JPanel(new GridBagLayout());
+        // Form Panel
+        JPanel formPanel = new JPanel(new GridLayout(0, 2, 10, 10));
+        formPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         formPanel.setBackground(ColorConstants.BACKGROUND_COLOR);
-        formPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
-        gbc.anchor = GridBagConstraints.WEST;
-
-        // NIP
-        gbc.gridx = 0; gbc.gridy = 0;
-        formPanel.add(new JLabel("NIP:"), gbc);
-        gbc.gridx = 1;
-        nipField = new JTextField(20);
-        formPanel.add(nipField, gbc);
-
-        // Nama
-        gbc.gridx = 0; gbc.gridy = 1;
-        formPanel.add(new JLabel("Nama:"), gbc);
-        gbc.gridx = 1;
-        namaField = new JTextField(20);
-        formPanel.add(namaField, gbc);
-
-        // Gelar
-        gbc.gridx = 0; gbc.gridy = 2;
-        formPanel.add(new JLabel("Gelar:"), gbc);
-        gbc.gridx = 1;
-        gelarField = new JTextField(20);
-        formPanel.add(gelarField, gbc);
-
-        // Jenis Kelamin
-        gbc.gridx = 0; gbc.gridy = 3;
-        formPanel.add(new JLabel("Jenis Kelamin:"), gbc);
-        gbc.gridx = 1;
-        jenisKelaminCombo = new JComboBox<>(JenisKelamin.values());
-        formPanel.add(jenisKelaminCombo, gbc);
-
-        // TTL
-        gbc.gridx = 0; gbc.gridy = 4;
-        formPanel.add(new JLabel("Tanggal Lahir (yyyy-MM-dd):"), gbc);
-        gbc.gridx = 1;
-        ttlField = new JFormattedTextField(new SimpleDateFormat("yyyy-MM-dd"));
-        ttlField.setValue(new Date());
-        formPanel.add(ttlField, gbc);
+        // Form fields
+        addFormField(formPanel, "NIDN:", nidnField = new JTextField());
+        addFormField(formPanel, "Nama Lengkap:", namaField = new JTextField());
+        addFormField(formPanel, "Jenis Kelamin:", jenisKelaminCombo = new JComboBox<>(JenisKelamin.values()));
+        addFormField(formPanel, "Alamat:", alamatField = new JTextField());
+        addFormField(formPanel, "No. Telepon:", telpField = new JTextField());
+        addFormField(formPanel, "Email:", emailField = new JTextField());
+        addFormField(formPanel, "Username:", usernameField = new JTextField());
+        addFormField(formPanel, "Password:", passwordField = new JPasswordField());
+        addFormField(formPanel, "Status Akun:", statusCombo = new JComboBox<>(new String[]{"AKTIF", "NON-AKTIF"}));
 
         // Button Panel
-        JPanel buttonPanel = new JPanel(new FlowLayout());
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonPanel.setBackground(ColorConstants.BACKGROUND_COLOR);
 
-        JButton saveButton = new JButton("SIMPAN");
-        saveButton.setBackground(ColorConstants.PRIMARY_COLOR);
-        saveButton.setForeground(Color.WHITE);
-        saveButton.setFocusPainted(false);
-        saveButton.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        saveButton.addActionListener(new SaveActionListener());
+        batalBtn = new JButton("BATAL");
+        batalBtn.addActionListener(e -> dispose());
+        styleButton(batalBtn, ColorConstants.SECONDARY_COLOR);
 
-        JButton cancelButton = new JButton("BATAL");
-        cancelButton.setBackground(ColorConstants.SECONDARY_COLOR);
-        cancelButton.setForeground(Color.WHITE);
-        cancelButton.setFocusPainted(false);
-        cancelButton.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        cancelButton.addActionListener(e -> dispose());
+        simpanBtn = new JButton("SIMPAN");
+        simpanBtn.addActionListener(e -> simpanDosen());
+        styleButton(simpanBtn, ColorConstants.PRIMARY_COLOR);
 
-        buttonPanel.add(saveButton);
-        buttonPanel.add(cancelButton);
+        buttonPanel.add(batalBtn);
+        buttonPanel.add(simpanBtn);
 
-        add(headerPanel, BorderLayout.NORTH);
-        add(formPanel, BorderLayout.CENTER);
-        add(buttonPanel, BorderLayout.SOUTH);
+        mainPanel.add(headerPanel, BorderLayout.NORTH);
+        mainPanel.add(formPanel, BorderLayout.CENTER);
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        add(mainPanel);
+    }
+
+    private void addFormField(JPanel panel, String label, JComponent field) {
+        JLabel jLabel = new JLabel(label);
+        jLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        panel.add(jLabel);
+        panel.add(field);
+    }
+
+    private void styleButton(JButton button, Color color) {
+        button.setBackground(color);
+        button.setForeground(Color.WHITE);
+        button.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        button.setFocusPainted(false);
     }
 
     private void loadData() {
-        nipField.setText(String.valueOf(dosen.getNip()));
-        nipField.setEditable(false); // tidak bisa diubah saat edit
-        namaField.setText(dosen.getNama());
-        gelarField.setText(dosen.getGelar());
+        nidnField.setText(dosen.getNidn());
+        namaField.setText(dosen.getNamaLengkap());
         jenisKelaminCombo.setSelectedItem(dosen.getJenisKelamin());
-        ttlField.setValue(dosen.getTtl());
+        alamatField.setText(dosen.getAlamat());
+        telpField.setText(dosen.getNoTelp());
+        emailField.setText(dosen.getEmail());
+        usernameField.setText(dosen.getUsername());
+        statusCombo.setSelectedItem(dosen.getStatusAkun());
+        
+        if (isEdit) {
+            nidnField.setEditable(false);
+            passwordField.setText("********"); // Placeholder for existing password
+        }
+    }
+
+    private void simpanDosen() {
+        if (!validateForm()) return;
+
+        try {
+            Dosen newDosen = new Dosen();
+            newDosen.setId(isEdit ? dosen.getId() : 0);
+            newDosen.setNidn(nidnField.getText());
+            newDosen.setNamaLengkap(namaField.getText());
+            newDosen.setJenisKelamin((JenisKelamin) jenisKelaminCombo.getSelectedItem());
+            newDosen.setAlamat(alamatField.getText());
+            newDosen.setNoTelp(telpField.getText());
+            newDosen.setEmail(emailField.getText());
+            newDosen.setUsername(usernameField.getText());
+            newDosen.setStatusAkun(statusCombo.getSelectedItem().toString());
+            newDosen.setTanggalBergabung(LocalDate.now());
+            
+            if (!isEdit || !String.valueOf(passwordField.getPassword()).equals("********")) {
+                newDosen.setPassword(new String(passwordField.getPassword()));
+            }
+
+            boolean success = isEdit 
+                ? dosenService.updateDosen(newDosen) 
+                : dosenService.tambahDosen(newDosen);
+
+            if (success) {
+                JOptionPane.showMessageDialog(this, 
+                    isEdit ? "Data dosen berhasil diperbarui!" : "Data dosen berhasil ditambahkan!",
+                    "Sukses", JOptionPane.INFORMATION_MESSAGE);
+                dispose();
+            } else {
+                throw new Exception("Gagal menyimpan data dosen");
+            }
+        } catch (IllegalArgumentException | NullPointerException e) {
+            // Handle specific data validation errors
+            Logger.getLogger(DosenForm.class.getName()).log(Level.WARNING, "Data tidak valid", e);
+            showError("Data tidak valid: " + e.getMessage());
+        } catch (Exception e) {
+            // Handle other unexpected errors
+            Logger.getLogger(DosenForm.class.getName()).log(Level.SEVERE, "Error sistem", e);
+            showError("Terjadi kesalahan sistem: " + e.getMessage());
+        }
     }
 
     private boolean validateForm() {
-        if (nipField.getText().trim().isEmpty() || !nipField.getText().trim().matches("\\d+")) {
-            JOptionPane.showMessageDialog(this, "NIP harus berupa angka!", "Error", JOptionPane.ERROR_MESSAGE);
+        if (nidnField.getText().trim().isEmpty()) {
+            showError("NIDN harus diisi!");
             return false;
         }
         if (namaField.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Nama harus diisi!", "Error", JOptionPane.ERROR_MESSAGE);
+            showError("Nama lengkap harus diisi!");
             return false;
         }
-        if (gelarField.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Gelar harus diisi!", "Error", JOptionPane.ERROR_MESSAGE);
+        if (usernameField.getText().trim().isEmpty()) {
+            showError("Username harus diisi!");
             return false;
         }
-        if (ttlField.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Tanggal lahir harus diisi!", "Error", JOptionPane.ERROR_MESSAGE);
+        if (!isEdit && passwordField.getPassword().length == 0) {
+            showError("Password harus diisi!");
             return false;
         }
         return true;
     }
 
-    private class SaveActionListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (validateForm()) {
-                try {
-                    int nip = Integer.parseInt(nipField.getText().trim());
-                    String nama = namaField.getText().trim();
-                    String gelar = gelarField.getText().trim();
-                    JenisKelamin jk = (JenisKelamin) jenisKelaminCombo.getSelectedItem();
-                    Date ttl = new SimpleDateFormat("yyyy-MM-dd").parse(ttlField.getText().trim());
-
-                    Dosen d = new Dosen(nip, nama, gelar, jk, ttl);
-
-                    boolean success;
-                    if (isEdit) {
-                        success = dosenService.updateDosen(d);
-                    } else {
-                        success = dosenService.addDosen(d);
-                    }
-
-                    if (success) {
-                        JOptionPane.showMessageDialog(DosenForm.this,
-                                isEdit ? "Data dosen berhasil diperbarui!" : "Data dosen berhasil ditambahkan!",
-                                "Sukses", JOptionPane.INFORMATION_MESSAGE);
-                        dispose();
-                    } else {
-                        JOptionPane.showMessageDialog(DosenForm.this,
-                                "Gagal menyimpan data dosen!",
-                                "Error", JOptionPane.ERROR_MESSAGE);
-                    }
-                } catch (ParseException | NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(DosenForm.this,
-                            "Format data tidak valid!", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        }
+    private void showError(String message) {
+        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
 }

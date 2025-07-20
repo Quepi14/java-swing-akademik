@@ -1,10 +1,17 @@
 package akademik.util;
 
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Font;
+
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
-import java.awt.*;
 
 public class ComponentFactory {
 
@@ -55,10 +62,12 @@ public class ComponentFactory {
         Color hoverColor = ColorConstants.BUTTON_HOVER;
 
         button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 button.setBackground(hoverColor);
             }
 
+            @Override
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 button.setBackground(defaultColor);
             }

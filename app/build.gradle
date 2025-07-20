@@ -1,40 +1,67 @@
 plugins {
     id 'application'
     id 'java'
+    id 'eclipse'
 }
 
 group = 'akademik'
 version = '1.0'
+
+eclipse {
+    classpath {
+        downloadSources = true
+        downloadJavadoc = true  
+        file {
+            withXml {
+                def node = it.asNode()
+                node.appendNode('classpathentry', [kind: 'output', path: 'bin'])
+            }
+        }
+    }
+}
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    // Library Apache Shiro untuk autentikasi
     implementation 'org.apache.shiro:shiro-core:1.11.0'
-
-    // (Opsional) Tambahkan SwingX atau lib lainnya jika dipakai
-    // implementation 'org.swinglabs:swingx:1.6.1'
-
-    // Testing (opsional)
+    implementation 'org.slf4j:slf4j-simple:2.0.9' 
+    implementation 'com.formdev:flatlaf:3.2.5' 
+    implementation 'com.miglayout:miglayout-swing:11.1' 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
 }
 
 application {
-    // Entry point ke aplikasi
-    mainClass = 'akademik.app.App'
+    mainClass = 'akademik.gui.LoginForm'
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+    options.compilerArgs += ['--enable-preview']
 }
 
-test {
+tasks.withType(Test).configureEach {
+    jvmArgs += ['--enable-preview']
     useJUnitPlatform()
+}
+
+tasks.withType(JavaExec).configureEach {
+    jvmArgs += [
+        '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
+        '--add-opens', 'java.desktop/javax.swing=ALL-UNNAMED'
+    ]
+}
+
+tasks.register('resolveDependencies') {
+    dependsOn configurations.runtimeClasspath
+    doLast {
+        println "All dependencies resolved successfully"
+    }
 }

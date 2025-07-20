@@ -1,5 +1,6 @@
 package akademik.model;
 
 public enum JenisKelamin {
-    L, P
+    LAKI_LAKI,
+    PEREMPUAN
 }
